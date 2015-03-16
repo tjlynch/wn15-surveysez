@@ -13,7 +13,7 @@
 	 * separate application from the original list/view. 
 	 * 
 	 * @package SurveySez
-	 * @author t.lynch <email here>
+	 * @author t.lynch <lynchtjr@gmail.com>
 	 * @version 1.0 2015/02/03
 	 * @link http://www.chromaff.com/
 	 * @license http://opensource.org/licenses/osl-3.0.php Open Software License ("OSL") v. 3.0
@@ -31,34 +31,94 @@
 		}else{
 			myRedirect(VIRTUAL_PATH . "surveys/survey_list.php");
 		}
-		$mySurvey = new Survey($myID);
-	//dumpDie($mySurvey);
-	if($mySurvey->isValid)
+		/*
+		we know we want the results or the survey, not both....
+		also we may have no survery at all
+		
+		if result show result
+		else if survey, show survey
+		else show sorry, no survey
+		
+				
+		if(result) {
+		
+		}else{
+		
+		if(survey){	
+		
+			
+		}else{		
+		echo 'Sorry no survey!';			
+		}
+		
+		*/
+	
+	
+	$myResult = new Result($myID);
+	if($myResult->isValid)
 	{
-		$config->titleTag = $mySurvey->Title . "!";
-	}else{//no survey
-		$config->titleTag = "No such Survey";
+		$PageTitle = "'Result to " . $myResult->Title . "' Survey!";
+	}else{
+	
+		$mySurvey = new Survey($myID);
+		if($mySurvey->isValid)
+		{
+			$config->titleTag = $mySurvey->Title . "!";
+		}else{
+			$config->titleTag = "No such Survey";
+		}	
+	
 	}
-	//dumpDie($mySurvey);
+	
 
 	get_header(); #defaults to theme header or header_inc.php
+
+
+
+
+
+
+
 
 	echo '
 	<h3 align="center">' . $config->titleTag . '</h3>
 		';
 	
-	 if($mySurvey->isValid)
+	if($myResult->isValid)
+{# check to see if we have a valid SurveyID
+	echo "Survey Title: <b>" . $myResult->Title . "</b><br />";  //show data on page
+	echo "Survey Description: " . $myResult->Description . "<br />";
+	$myResult->showGraph() . "<br />";	//showTallies method shows all questions, answers and tally totals!
+	echo SurveyUtil::responseList($myID);
+	unset($myResult);  //destroy object & release resources
+}else{
+
+	if($mySurvey->isValid)	
 	{
-		echo
-		'	
+		echo		'	
 		<p><b>' . $mySurvey->Description . '</b></p>	
-		';
-	
+		';	
 		 $mySurvey->showQuestions();
 		 echo SurveyUtil::responseList($myID);
 
-	}else{//no survey
-		echo '<p>Please check to see if there is a problem.</p>';
-	}
+	}else{
+			echo "No such Survey";
+		}
+	
+	}	
+	
+	
+	
+	
+	
+	
+	
+
+	
+	
+	
+	
+	
+	 
 	get_footer(); #defaults to theme footer or footer_inc.php
 
